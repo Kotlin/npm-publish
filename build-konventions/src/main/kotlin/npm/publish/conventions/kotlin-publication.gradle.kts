@@ -10,6 +10,9 @@ plugins {
   signing
 }
 
+val deployVersion: String? = project.findProperty("DeployVersion")?.toString()?.ifBlank { null }
+if (deployVersion != null) project.version = deployVersion
+
 signing {
   val keyId = project.getSensitiveProperty("libs.sign.key.id")
   val signingKey = project.getSensitiveProperty("libs.sign.key.private")
