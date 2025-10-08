@@ -6,6 +6,7 @@ pluginManagement {
   }
 
   includeBuild("./build-conventions")
+  includeBuild("./build-konventions")
 }
 
 plugins {

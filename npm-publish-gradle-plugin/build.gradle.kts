@@ -3,13 +3,12 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
-
 plugins {
   id("kjvm")
   id("detekt")
   id("dokkatoo")
-  id("full-publishing")
   alias(libs.plugins.plugin.publish)
+  id("kotlin-publication")
 }
 
 description = """
@@ -38,18 +37,12 @@ gradlePlugin {
   vcsUrl = "https://github.com/mpetuska/npm-publish"
   plugins {
     create(name) {
-      id = "dev.petuska.npm.publish"
+      id = "org.jetbrains.kotlin.npm-publish"
       implementationClass = "dev.petuska.npm.publish.NpmPublishPlugin"
       displayName = "NPM package publishing to NPM repositories"
       description = project.description
       tags = listOf("npm", "publishing", "kotlin", "node", "js")
     }
-  }
-}
-
-deployer {
-  content {
-    gradlePluginComponents()
   }
 }
 
