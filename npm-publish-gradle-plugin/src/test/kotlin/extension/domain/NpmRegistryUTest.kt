@@ -11,7 +11,9 @@ class NpmRegistryUTest : UTest() {
   fun publishTaskNameTests(): Collection<DynamicTest> {
     val expected = "publishTestPackagePackageToTestRegistryRegistry"
     return packageNames.zip(registryNames).map { (p, r) ->
-      DynamicTest.dynamicTest("::publishTaskName can handle '$p' package name and '$r' registry name") {
+      DynamicTest.dynamicTest(
+        "::publishTaskName can handle '$p' package name and '$r' registry name"
+      ) {
         publishTaskName(p, r) shouldBe expected
       }
     }

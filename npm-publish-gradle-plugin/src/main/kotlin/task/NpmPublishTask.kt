@@ -3,6 +3,8 @@ package dev.petuska.npm.publish.task
 import dev.petuska.npm.publish.extension.NpmPublishExtension
 import dev.petuska.npm.publish.extension.domain.NpmRegistry
 import dev.petuska.npm.publish.util.configure
+import java.util.*
+import javax.inject.Inject
 import org.gradle.api.Action
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileSystemOperations
@@ -11,34 +13,30 @@ import org.gradle.api.publish.plugins.PublishingPlugin.PUBLISH_TASK_GROUP
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.options.Option
-import java.util.*
-import javax.inject.Inject
 
-/**
- * A publishing task that publishes a given package to a given registry.
- */
+/** A publishing task that publishes a given package to a given registry. */
 @Suppress("LeakingThis")
 @UntrackedTask(because = "Must always run")
 public abstract class NpmPublishTask : NpmExecTask() {
-  @get:Inject
-  internal abstract val fs: FileSystemOperations
+  @get:Inject internal abstract val fs: FileSystemOperations
 
   /**
    * A registry to publish to
+   *
    * @see [NpmRegistry]
    */
-  @get:Nested
-  public abstract val registry: Property<NpmRegistry>
+  @get:Nested public abstract val registry: Property<NpmRegistry>
 
   /**
    * The directory where the assembled and ready-to-publish package is
+   *
    * @see [NpmAssembleTask]
    */
-  @get:InputDirectory
-  public abstract val packageDir: DirectoryProperty
+  @get:InputDirectory public abstract val packageDir: DirectoryProperty
 
   /**
    * Controls dry-tun mode for the execution.
+   *
    * @see [NpmPublishExtension.dry]
    */
   @get:Input
@@ -47,6 +45,7 @@ public abstract class NpmPublishTask : NpmExecTask() {
 
   /**
    * Optional tag to label the published package version
+   *
    * @see [NpmPublishExtension.dry]
    */
   @get:Input
@@ -56,6 +55,7 @@ public abstract class NpmPublishTask : NpmExecTask() {
 
   /**
    * Configuration DSL allowing to modify a registry config
+   *
    * @param action to apply
    */
   @Suppress("unused")
@@ -63,23 +63,20 @@ public abstract class NpmPublishTask : NpmExecTask() {
     registry.configure(action)
   }
 
-  /**
-   * A working directory where final publishing layout is assembled.
-   */
-  @get:OutputDirectory
-  public abstract val workingDir: DirectoryProperty
+  /** A working directory where final publishing layout is assembled. */
+  @get:OutputDirectory public abstract val workingDir: DirectoryProperty
 
   init {
     group = PUBLISH_TASK_GROUP
     description = "Publishes NPM package to NPM registry"
     dry.convention(registry.flatMap(NpmRegistry::dry))
-    workingDir.convention(project.layout.buildDirectory.dir(registry.zip(packageDir) { reg, pDir ->
-      "registries/${reg.name}/${pDir.asFile.name}"
-    }))
+    workingDir.convention(
+      project.layout.buildDirectory.dir(
+        registry.zip(packageDir) { reg, pDir -> "registries/${reg.name}/${pDir.asFile.name}" }
+      )
+    )
     registry.convention(
-      project.provider {
-        project.objects.newInstance(NpmRegistry::class.java, name)
-      }
+      project.provider { project.objects.newInstance(NpmRegistry::class.java, name) }
     )
   }
 

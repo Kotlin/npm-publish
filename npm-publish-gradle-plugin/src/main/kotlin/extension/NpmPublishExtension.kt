@@ -7,6 +7,7 @@ import dev.petuska.npm.publish.task.NpmPackTask
 import dev.petuska.npm.publish.task.NpmPublishTask
 import dev.petuska.npm.publish.util.NpmPublishDsl
 import dev.petuska.npm.publish.util.WithGradleFactories
+import java.net.URI
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
@@ -14,10 +15,10 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
-import java.net.URI
 
 /**
  * An extension for npm-publish plugin configuration
+ *
  * @see [NpmPublishPlugin]
  */
 @Suppress("unused")
@@ -28,68 +29,70 @@ public abstract class NpmPublishExtension : WithGradleFactories(), ExtensionAwar
   }
 
   /**
-   * Base NodeJS directory to be used when executing npm commands.
-   * Defaults to `NODE_HOME` env variable.
+   * Base NodeJS directory to be used when executing npm commands. Defaults to `NODE_HOME` env
+   * variable.
    *
    * @see [NodeExecTask.nodeHome]
    */
   public abstract val nodeHome: DirectoryProperty
 
-  /**
-   * Path to node executable. If not set, defaults to `[nodeHome]/bin/node`.
-   */
+  /** Path to node executable. If not set, defaults to `[nodeHome]/bin/node`. */
   public abstract val nodeBin: RegularFileProperty
 
-  /**
-   * Path to npm executable. If not set, defaults to `[nodeHome]/bin/npm`.
-   */
+  /** Path to npm executable. If not set, defaults to `[nodeHome]/bin/npm`. */
   public abstract val npmBin: RegularFileProperty
 
   /**
-   * A location of the default `README.md` file.
-   * If set, it will be used as a default for all packages that do not have one set explicitly.
+   * A location of the default `README.md` file. If set, it will be used as a default for all
+   * packages that do not have one set explicitly.
+   *
    * @see [NpmPackage.readme]
    */
   public abstract val readme: RegularFileProperty
 
   /**
-   * A location of the default `.npmignore` file.
-   * If set, it will be used as a default for all packages that do not have one set explicitly.
+   * A location of the default `.npmignore` file. If set, it will be used as a default for all
+   * packages that do not have one set explicitly.
+   *
    * @see [NpmPackage.npmIgnore]
    */
   public abstract val npmIgnore: RegularFileProperty
 
   /**
-   * A location of the default `.npmrc` file.
-   * If set, it will be used as a default for all registries that do not have one set explicitly.
+   * A location of the default `.npmrc` file. If set, it will be used as a default for all
+   * registries that do not have one set explicitly.
+   *
    * @see [NpmRegistry.npmrc]
    */
   public abstract val npmrc: RegularFileProperty
 
   /**
-   * Default package scope.
-   * If set, it will be used as a default for all packages that do not have one set explicitly.
+   * Default package scope. If set, it will be used as a default for all packages that do not have
+   * one set explicitly.
+   *
    * @see [NpmPackage.scope]
    */
   public abstract val organization: Property<String>
 
   /**
-   * Default package version. Defaults to [Project.getVersion] or `rootProject.version`.
-   * If set, it will be used as a default for all packages that do not have one set explicitly.
+   * Default package version. Defaults to [Project.getVersion] or `rootProject.version`. If set, it
+   * will be used as a default for all packages that do not have one set explicitly.
+   *
    * @see [NpmPackage.version]
    */
   public abstract val version: Property<String>
 
   /**
-   * Default package access when publishing to npm registries.
-   * Defaults to [NpmAccess.PUBLIC]
+   * Default package access when publishing to npm registries. Defaults to [NpmAccess.PUBLIC]
+   *
    * @see [NpmRegistry.access]
    */
   public abstract val access: Property<NpmAccess>
 
   /**
-   * Specifies if a dry-run should be added to the npm command arguments by default. Dry run does all the
-   * normal run des except actual file uploading. Defaults to `false`.
+   * Specifies if a dry-run should be added to the npm command arguments by default. Dry run does
+   * all the normal run des except actual file uploading. Defaults to `false`.
+   *
    * @see [NpmRegistry.dry]
    * @see [NpmPackTask.dry]
    * @see [NpmPublishTask.dry]
@@ -98,12 +101,14 @@ public abstract class NpmPublishExtension : WithGradleFactories(), ExtensionAwar
 
   /**
    * A container for npm package configurations
+   *
    * @see [NpmPackage]
    */
   public abstract val packages: NpmPackages
 
   /**
    * A container for npm registry configurations
+   *
    * @see [NpmRegistry]
    */
   public abstract val registries: NpmRegistries
@@ -112,6 +117,7 @@ public abstract class NpmPublishExtension : WithGradleFactories(), ExtensionAwar
 
   /**
    * Convenience DSL to configure npm packages
+   *
    * @param action to apply
    * @see [NpmPackage]
    */
@@ -121,6 +127,7 @@ public abstract class NpmPublishExtension : WithGradleFactories(), ExtensionAwar
 
   /**
    * Convenience DSL to configure npm registries
+   *
    * @param action to apply
    * @see [NpmRegistry]
    */
@@ -131,10 +138,13 @@ public abstract class NpmPublishExtension : WithGradleFactories(), ExtensionAwar
   /**
    * Registers [npmjs.com](https://npmjs.com) registry.
    * [More info](https://docs.npmjs.com/creating-and-publishing-unscoped-public-packages)
+   *
    * @param action to apply
    * @see [NpmRegistry]
    */
-  public fun NpmRegistries.npmjs(action: Action<NpmRegistry>): NamedDomainObjectProvider<NpmRegistry> {
+  public fun NpmRegistries.npmjs(
+    action: Action<NpmRegistry>
+  ): NamedDomainObjectProvider<NpmRegistry> {
     val name = "npmjs"
     val config: NpmRegistry.() -> Unit = {
       uri.set(URI("https://registry.npmjs.org/"))
@@ -144,12 +154,16 @@ public abstract class NpmPublishExtension : WithGradleFactories(), ExtensionAwar
   }
 
   /**
-   * Registers [GitHub Packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry) registry.
-   * [More info](https://docs.npmjs.com/creating-and-publishing-unscoped-public-packages)
+   * Registers
+   * [GitHub Packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry)
+   * registry. [More info](https://docs.npmjs.com/creating-and-publishing-unscoped-public-packages)
+   *
    * @param action to apply
    * @see [NpmRegistry]
    */
-  public fun NpmRegistries.github(action: Action<NpmRegistry>): NamedDomainObjectProvider<NpmRegistry> {
+  public fun NpmRegistries.github(
+    action: Action<NpmRegistry>
+  ): NamedDomainObjectProvider<NpmRegistry> {
     val name = "github"
     val config: NpmRegistry.() -> Unit = {
       uri.set(URI("https://npm.pkg.github.com/"))

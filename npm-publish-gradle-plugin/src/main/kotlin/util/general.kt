@@ -1,27 +1,26 @@
 package dev.petuska.npm.publish.util
 
+import java.util.Locale
 import org.gradle.api.Action
 import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
-import java.util.*
 
-internal fun String?.notFalse() = !(
-  equals("false", true) ||
+internal fun String?.notFalse() =
+  !(equals("false", true) ||
     equals("0", true) ||
     equals("n", true) ||
     equals("N", true) ||
     equals("f", true) ||
-    equals("F", true)
-  )
+    equals("F", true))
 
-internal fun String.capitalised() = replaceFirstChar { if (it.isLowerCase()) {
-  it.titlecase(
-    Locale.getDefault()
-  )
-} else {
-  it.toString()
-} }
+internal fun String.capitalised() = replaceFirstChar {
+  if (it.isLowerCase()) {
+    it.titlecase(Locale.getDefault())
+  } else {
+    it.toString()
+  }
+}
 
 internal fun npmFullName(name: String, scope: String?) =
   "${scope?.let { "@${it.trim()}/" } ?: ""}${name.trim()}"
@@ -35,9 +34,10 @@ internal fun <T : Any, P : Provider<T>> P.configure(config: Action<T>): Provider
   it
 }
 
-@Suppress("UNCHECKED_CAST")
-internal fun <T> Any?.unsafeCast(): T = this as T
+@Suppress("UNCHECKED_CAST") internal fun <T> Any?.unsafeCast(): T = this as T
 
-internal inline fun <reified T> ExtensionContainer.configure(crossinline action: T.() -> Unit) {
+internal inline fun <reified T : Any> ExtensionContainer.configure(
+  crossinline action: T.() -> Unit
+) {
   configure(T::class.java) { it.apply(action) }
 }

@@ -10,38 +10,33 @@ class NpmPublishPluginFTest : FTest() {
   @Test
   @Disabled
   fun `can apply the plugin`() {
-    val result = executeBuild("assemble", init = { dir ->
-      dir.resolve("src/jsMain/kotlin/main.kt").apply { parentFile.mkdirs() }.writeText("fun main() {}")
-    }) {
-      plugins {
-        kotlinMultiplatform("1.7.0")
-      }
+    val result =
+      executeBuild(
+        "assemble",
+        init = { dir ->
+          dir
+            .resolve("src/jsMain/kotlin/main.kt")
+            .apply { parentFile.mkdirs() }
+            .writeText("fun main() {}")
+        },
+      ) {
+        plugins { kotlinMultiplatform("1.7.0") }
 
-      "kotlin" {
-        "js(IR)" {
-          +"browser()"
-          +"binaries.library()"
-        }
-        "sourceSets" {
-          """named("jsMain")""" {
-            "dependencies" {
-              +"""api("dev.petuska:kon:1.1.4")"""
-            }
+        "kotlin" {
+          "js(IR)" {
+            +"browser()"
+            +"binaries.library()"
+          }
+          "sourceSets" {
+            """named("jsMain")""" { "dependencies" { +"""api("dev.petuska:kon:1.1.4")""" } }
           }
         }
-      }
 
-      "npmPublish" {
-        +"organization.set(group.toString())"
-        "packages" {
-          """named("js")""" {
-            "dependencies" {
-              +"""normal("axios", "*")"""
-            }
-          }
+        "npmPublish" {
+          +"organization.set(group.toString())"
+          "packages" { """named("js")""" { "dependencies" { +"""normal("axios", "*")""" } } }
         }
       }
-    }
     result shouldNotBe null
   }
 }

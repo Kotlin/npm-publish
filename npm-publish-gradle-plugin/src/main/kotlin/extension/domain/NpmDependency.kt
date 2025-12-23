@@ -7,9 +7,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
-/**
- * A simple representation of a npm dependency
- */
+/** A simple representation of a npm dependency */
 @Suppress("unused")
 @NpmPublishDsl
 public interface NpmDependency : NamedInput {
@@ -17,36 +15,26 @@ public interface NpmDependency : NamedInput {
    * Dependency version specification.
    * [More info](https://docs.npmjs.com/about-semantic-versioning#using-semantic-versioning-to-specify-update-types-your-package-can-accept)
    */
-  @get:Input
-  public val version: Property<String>
+  @get:Input public val version: Property<String>
 
   /**
    * Dependency type
+   *
    * @see [Type]
    */
-  @get:Input
-  @get:Optional
-  public val type: Property<Type>
+  @get:Input @get:Optional public val type: Property<Type>
 
   public companion object {
-    /**
-     * @see [Type.OPTIONAL]
-     */
+    /** @see [Type.OPTIONAL] */
     public val OPTIONAL: Type = Type.OPTIONAL
 
-    /**
-     * @see [Type.PEER]
-     */
+    /** @see [Type.PEER] */
     public val PEER: Type = Type.PEER
 
-    /**
-     * @see [Type.DEV]
-     */
+    /** @see [Type.DEV] */
     public val DEV: Type = Type.DEV
 
-    /**
-     * @see [Type.NORMAL]
-     */
+    /** @see [Type.NORMAL] */
     public val NORMAL: Type = Type.NORMAL
   }
 
@@ -58,7 +46,7 @@ public interface NpmDependency : NamedInput {
     OPTIONAL,
     PEER,
     DEV,
-    NORMAL
+    NORMAL,
   }
 }
 

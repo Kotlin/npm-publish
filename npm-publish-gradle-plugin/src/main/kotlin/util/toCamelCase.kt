@@ -15,29 +15,32 @@ internal fun String.toCamelCase(lower: Boolean = false): String {
     if (chunk.isEmpty()) {
       continue
     }
-    chunk = chunk.replaceFirstChar {
+    chunk =
+      chunk.replaceFirstChar {
+        when {
+          first && lower -> it.lowercaseChar().also { first = false }
+          it.isLowerCase() -> it.titlecaseChar()
+          else -> it
+        }
+      }
+    builder.append(chunk)
+  }
+  var rest: String = subSequence(pos, length).toString()
+  rest =
+    rest.replaceFirstChar {
       when {
         first && lower -> it.lowercaseChar().also { first = false }
         it.isLowerCase() -> it.titlecaseChar()
         else -> it
       }
     }
-    builder.append(chunk)
-  }
-  var rest: String = subSequence(pos, length).toString()
-  rest = rest.replaceFirstChar {
-    when {
-      first && lower -> it.lowercaseChar().also { first = false }
-      it.isLowerCase() -> it.titlecaseChar()
-      else -> it
-    }
-  }
   builder.append(rest)
   return builder.toString()
 }
 
-private fun String.replaceFirstChar(replacer: (Char) -> Char): String = if (isNotEmpty()) {
-  replacer(get(0)) + drop(1)
-} else {
-  this
-}
+private fun String.replaceFirstChar(replacer: (Char) -> Char): String =
+  if (isNotEmpty()) {
+    replacer(get(0)) + drop(1)
+  } else {
+    this
+  }

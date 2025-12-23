@@ -1,5 +1,5 @@
 plugins {
-  kotlin("multiplatform")
+  alias(libs.plugins.kotlin.multiplatform)
   id("dev.petuska.npm.publish")
 }
 
@@ -9,15 +9,7 @@ kotlin {
     generateTypeScriptDefinitions()
     binaries.library()
   }
-  sourceSets {
-    named("jsMain") {
-      dependencies {
-        implementation(npm("is-even", "*"))
-      }
-    }
-  }
+  sourceSets { named("jsMain") { dependencies { implementation(npm("is-even", "*")) } } }
 }
 
-npmPublish {
-  organization.set("mpetuska")
-}
+npmPublish { organization.set("mpetuska") }

@@ -1,4 +1,1 @@
-plugins {
-  id("versions")
-  id("detekt")
-}
+plugins { alias(libs.plugins.kotlin.multiplatform) apply false }

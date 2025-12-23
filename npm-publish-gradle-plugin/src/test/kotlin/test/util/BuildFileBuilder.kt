@@ -10,22 +10,18 @@ class BuildFileBuilder(config: BuildFileBuilder.() -> Unit) : ScriptBuilder() {
   }
 
   override fun toString(): String {
-    return ScriptBuilder().apply {
-      imports.forEach { +"import $it" }
-      "plugins" {
-        +plugins.toString()
+    return ScriptBuilder()
+      .apply {
+        imports.forEach { +"import $it" }
+        "plugins" { +plugins.toString() }
+        "repositories" { +repositories.toString() }
+        +super.toString()
       }
-      "repositories" {
-        +repositories.toString()
-      }
-      +super.toString()
-    }.toString()
+      .toString()
   }
 
   init {
-    plugins {
-      npmPublish()
-    }
+    plugins { npmPublish() }
     repositories {
       mavenCentral()
       gradlePluginPortal()

@@ -14,6 +14,7 @@ public enum class NpmAccess {
   public companion object {
     /**
      * Converts a given string to an instance of [NpmAccess] by name ignoring case
+     *
      * @param name of the [NpmAccess] instance
      * @return an instance of [NpmAccess]
      */

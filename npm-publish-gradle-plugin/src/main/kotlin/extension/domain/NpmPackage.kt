@@ -15,62 +15,55 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 
-/**
- * The main configuration for a package
- */
+/** The main configuration for a package */
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 @NpmPublishDsl
 public abstract class NpmPackage : NamedInput, ExtensionAware, WithGradleFactories() {
   /**
    * Optional npm scope. If set, the package name will be constructed as `@{scope}/{packageName}`.
    * Defaults to [NpmPublishExtension.organization].
+   *
    * @see [NpmPublishExtension.organization]
    * @see [PackageJson.name]
    */
-  @get:Input
-  @get:Optional
-  public abstract val scope: Property<String>
+  @get:Input @get:Optional public abstract val scope: Property<String>
 
   /**
-   * NPM package name.
-   * Defaults to [Project.getName].
+   * NPM package name. Defaults to [Project.getName].
+   *
    * @see [Project.getName]
    * @see [PackageJson.name]
    */
-  @get:Input
-  public abstract val packageName: Property<String>
+  @get:Input public abstract val packageName: Property<String>
 
   /**
-   * NPM package version.
-   * Defaults to [NpmPublishExtension.version].
+   * NPM package version. Defaults to [NpmPublishExtension.version].
+   *
    * @see [NpmPublishExtension.version]
    * @see [PackageJson.version]
    */
-  @get:Input
-  public abstract val version: Property<String>
+  @get:Input public abstract val version: Property<String>
 
   /**
-   * Main js entry file.
-   * Can also be set via [packageJsonFile], [packageJsonTemplateFile] or [packageJson]
+   * Main js entry file. Can also be set via [packageJsonFile], [packageJsonTemplateFile] or
+   * [packageJson]
+   *
    * @see [PackageJson.main]
    */
-  @get:Input
-  @get:Optional
-  public abstract val main: Property<String>
+  @get:Input @get:Optional public abstract val main: Property<String>
 
   /**
-   * Main d.ts entry file.
-   * Can also be set via [packageJsonFile], [packageJsonTemplateFile] or [packageJson]
+   * Main d.ts entry file. Can also be set via [packageJsonFile], [packageJsonTemplateFile] or
+   * [packageJson]
+   *
    * @see [PackageJson.types]
    */
-  @get:Input
-  @get:Optional
-  public abstract val types: Property<String>
+  @get:Input @get:Optional public abstract val types: Property<String>
 
   /**
-   * A location of the `README.md` file.
-   * If set, the file will be moved to package assembly root and renamed to README.md (regardless of the actual name).
-   * Defaults to [NpmPublishExtension.readme]
+   * A location of the `README.md` file. If set, the file will be moved to package assembly root and
+   * renamed to README.md (regardless of the actual name). Defaults to [NpmPublishExtension.readme]
+   *
    * @see [NpmPublishExtension.readme]
    */
   @get:InputFile
@@ -79,8 +72,8 @@ public abstract class NpmPackage : NamedInput, ExtensionAware, WithGradleFactori
   public abstract val readme: RegularFileProperty
 
   /**
-   * A location of the `.npmignore` file.
-   * Defaults to [NpmPublishExtension.npmIgnore]
+   * A location of the `.npmignore` file. Defaults to [NpmPublishExtension.npmIgnore]
+   *
    * @see [NpmPublishExtension.npmIgnore]
    */
   @get:InputFile
@@ -88,24 +81,22 @@ public abstract class NpmPackage : NamedInput, ExtensionAware, WithGradleFactori
   @get:PathSensitive(PathSensitivity.RELATIVE)
   public abstract val npmIgnore: RegularFileProperty
 
-  /**
-   * Files that should be assembled for this package
-   */
+  /** Files that should be assembled for this package */
   @get:InputFiles
   @get:PathSensitive(PathSensitivity.RELATIVE)
   public abstract val files: ConfigurableFileCollection
 
   /**
    * `package.json` customisation container.
+   *
    * @see [packageJsonFile]
    * @see [packageJsonTemplateFile]
    */
-  @get:Nested
-  @get:Optional
-  public abstract val packageJson: Property<PackageJson>
+  @get:Nested @get:Optional public abstract val packageJson: Property<PackageJson>
 
   /**
    * If set, fully disregards [main], [types] & [packageJson] configurations. Used as-is.
+   *
    * @see [packageJson]
    * @see [packageJsonTemplateFile]
    */
@@ -115,7 +106,9 @@ public abstract class NpmPackage : NamedInput, ExtensionAware, WithGradleFactori
   public abstract val packageJsonFile: RegularFileProperty
 
   /**
-   * Similar to [packageJsonFile] except allows the options to be overridden by the [packageJson] options.
+   * Similar to [packageJsonFile] except allows the options to be overridden by the [packageJson]
+   * options.
+   *
    * @see [packageJson]
    * @see [packageJsonFile]
    */
@@ -124,15 +117,13 @@ public abstract class NpmPackage : NamedInput, ExtensionAware, WithGradleFactori
   @get:PathSensitive(PathSensitivity.RELATIVE)
   public abstract val packageJsonTemplateFile: RegularFileProperty
 
-  /**
-   * Package's npm dependencies.
-   */
-  @get:Nested
-  public abstract val dependencies: NpmDependencies
+  /** Package's npm dependencies. */
+  @get:Nested public abstract val dependencies: NpmDependencies
 
-  //region DSL
+  // region DSL
   /**
    * Convenience DSL to configure package's files
+   *
    * @param action to apply
    */
   public fun files(action: Action<ConfigurableFileCollection>) {
@@ -141,6 +132,7 @@ public abstract class NpmPackage : NamedInput, ExtensionAware, WithGradleFactori
 
   /**
    * Convenience DSL to customise `package.json`
+   *
    * @param action to apply
    */
   public fun packageJson(action: Action<PackageJson>) {
@@ -151,6 +143,7 @@ public abstract class NpmPackage : NamedInput, ExtensionAware, WithGradleFactori
    * Convenience DSL to configure package's dependencies
    *
    * **Note:** In `gradle > 8.1.1` this must use explicit receiver `this` to be resolved
+   *
    * @param action to apply
    */
   public fun dependencies(action: Action<NpmDependencies>) {
@@ -159,6 +152,7 @@ public abstract class NpmPackage : NamedInput, ExtensionAware, WithGradleFactori
 
   /**
    * Registers an arbitrary npm dependency for the package
+   *
    * @param name of the dependency
    * @param version of the dependency
    * @param type of the dependency
@@ -169,15 +163,17 @@ public abstract class NpmPackage : NamedInput, ExtensionAware, WithGradleFactori
     name: String,
     version: String,
     type: NpmDependency.Type,
-    action: Action<NpmDependency> = Action { }
-  ): NamedDomainObjectProvider<NpmDependency> = register(name) {
-    it.type.set(type)
-    it.version.set(version)
-    action.execute(it)
-  }
+    action: Action<NpmDependency> = Action {},
+  ): NamedDomainObjectProvider<NpmDependency> =
+    register(name) {
+      it.type.set(type)
+      it.version.set(version)
+      action.execute(it)
+    }
 
   /**
    * Registers a normal npm dependency for the package
+   *
    * @param name of the dependency
    * @param version of the dependency
    * @param action to apply
@@ -186,11 +182,13 @@ public abstract class NpmPackage : NamedInput, ExtensionAware, WithGradleFactori
   public fun NpmDependencies.normal(
     name: String,
     version: String,
-    action: Action<NpmDependency> = Action { }
-  ): NamedDomainObjectProvider<NpmDependency> = dependency(name, version, NpmDependency.Type.NORMAL, action)
+    action: Action<NpmDependency> = Action {},
+  ): NamedDomainObjectProvider<NpmDependency> =
+    dependency(name, version, NpmDependency.Type.NORMAL, action)
 
   /**
    * Registers an optional npm dependency for the package
+   *
    * @param name of the dependency
    * @param version of the dependency
    * @param action to apply
@@ -199,11 +197,13 @@ public abstract class NpmPackage : NamedInput, ExtensionAware, WithGradleFactori
   public fun NpmDependencies.optional(
     name: String,
     version: String,
-    action: Action<NpmDependency> = Action { }
-  ): NamedDomainObjectProvider<NpmDependency> = dependency(name, version, NpmDependency.Type.OPTIONAL, action)
+    action: Action<NpmDependency> = Action {},
+  ): NamedDomainObjectProvider<NpmDependency> =
+    dependency(name, version, NpmDependency.Type.OPTIONAL, action)
 
   /**
    * Registers a dev npm dependency for the package
+   *
    * @param name of the dependency
    * @param version of the dependency
    * @param action to apply
@@ -212,11 +212,13 @@ public abstract class NpmPackage : NamedInput, ExtensionAware, WithGradleFactori
   public fun NpmDependencies.dev(
     name: String,
     version: String,
-    action: Action<NpmDependency> = Action { }
-  ): NamedDomainObjectProvider<NpmDependency> = dependency(name, version, NpmDependency.Type.DEV, action)
+    action: Action<NpmDependency> = Action {},
+  ): NamedDomainObjectProvider<NpmDependency> =
+    dependency(name, version, NpmDependency.Type.DEV, action)
 
   /**
    * Registers a peer npm dependency for the package
+   *
    * @param name of the dependency
    * @param version of the dependency
    * @param action to apply
@@ -225,8 +227,9 @@ public abstract class NpmPackage : NamedInput, ExtensionAware, WithGradleFactori
   public fun NpmDependencies.peer(
     name: String,
     version: String,
-    action: Action<NpmDependency> = Action { }
-  ): NamedDomainObjectProvider<NpmDependency> = dependency(name, version, NpmDependency.Type.PEER, action)
+    action: Action<NpmDependency> = Action {},
+  ): NamedDomainObjectProvider<NpmDependency> =
+    dependency(name, version, NpmDependency.Type.PEER, action)
 
   // endregion
 }

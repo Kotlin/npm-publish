@@ -1,17 +1,13 @@
-pluginManagement {
-  includeBuild("../build-conventions")
-}
-
-plugins {
-  id("settings")
+dependencyResolutionManagement {
+  @Suppress("UnstableApiUsage")
+  repositories {
+    mavenCentral()
+    gradlePluginPortal()
+  }
 }
 
 rootProject.name = "samples"
 
 includeBuild("../")
-includeBuild("../build-conventions")
-include(
-  ":publish-to-github-packages",
-  ":no-kotlin-plugin",
-  ":local-ts-consumer:kt",
-)
+
+include(":publish-to-github-packages", ":no-kotlin-plugin", ":local-ts-consumer:kt")

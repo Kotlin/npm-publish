@@ -12,6 +12,7 @@ locally. No publishing required!
     - `yarn start` task in [ts] project executes the [ts] app
     - `yarn build` task in [ts] project builds the [ts] app
     - `yarn build:start` task in [ts] project builds the [ts] app and executes it as a plain js file
+    - `yarn verify` task in [ts] project executes all above tasks
 
 ## Usage
 

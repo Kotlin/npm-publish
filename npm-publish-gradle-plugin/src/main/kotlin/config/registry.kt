@@ -9,9 +9,9 @@ import dev.petuska.npm.publish.util.PluginLogger
 import dev.petuska.npm.publish.util.notFalse
 import dev.petuska.npm.publish.util.sysProjectEnvPropertyConvention
 import dev.petuska.npm.publish.util.toCamelCase
-import org.gradle.api.Project
 import java.io.File
 import java.net.URI
+import org.gradle.api.Project
 
 internal fun Project.configure(registry: NpmRegistry) {
   val extension = extensions.getByType(NpmPublishExtension::class.java)
@@ -27,32 +27,44 @@ internal fun Project.configure(registry: NpmRegistry) {
   registry.username.convention(sysProjectEnvPropertyConvention(prefix + "username"))
   registry.password.convention(sysProjectEnvPropertyConvention(prefix + "password"))
   registry.npmrc.convention(
-    sysProjectEnvPropertyConvention(prefix + "npmrc", extension.npmrc.asFile.map(File::getAbsolutePath))
+    sysProjectEnvPropertyConvention(
+        prefix + "npmrc",
+        extension.npmrc.asFile.map(File::getAbsolutePath),
+      )
       .map(layout.projectDirectory::file)
   )
   registry.dry.convention(
-    sysProjectEnvPropertyConvention(prefix + "dry", extension.dry.map(Boolean?::toString)).map { it.notFalse() }
+    sysProjectEnvPropertyConvention(prefix + "dry", extension.dry.map(Boolean?::toString)).map {
+      it.notFalse()
+    }
   )
 }
 
 internal fun Project.registerPublishTask(packageName: String, registryName: String): Unit =
   with(PluginLogger.wrap(logger)) {
     val extension = extensions.getByType(NpmPublishExtension::class.java)
-    tasks.register(publishTaskName(packageName, registryName), NpmPublishTask::class.java) { task ->
-      description = "Publishes $packageName package to $registryName registry"
-      task.registry.set(extension.registries.named(registryName))
-      task.nodeHome.set(extension.nodeHome)
-      task.node.set(extension.nodeBin)
-      task.npm.set(extension.npmBin)
-      task.packageDir.set(
-        tasks.named(assembleTaskName(packageName), NpmAssembleTask::class.java).flatMap(NpmAssembleTask::destinationDir)
-      )
-    }.also { task ->
-      info { "Registered [${task.name}] NpmPublishTask for [$packageName] NpmPackage and [$registryName] NpmRegistry" }
-    }
+    tasks
+      .register(publishTaskName(packageName, registryName), NpmPublishTask::class.java) { task ->
+        description = "Publishes $packageName package to $registryName registry"
+        task.registry.set(extension.registries.named(registryName))
+        task.nodeHome.set(extension.nodeHome)
+        task.node.set(extension.nodeBin)
+        task.npm.set(extension.npmBin)
+        task.packageDir.set(
+          tasks
+            .named(assembleTaskName(packageName), NpmAssembleTask::class.java)
+            .flatMap(NpmAssembleTask::destinationDir)
+        )
+      }
+      .also { task ->
+        info {
+          "Registered [${task.name}] NpmPublishTask for [$packageName] NpmPackage and [$registryName] NpmRegistry"
+        }
+      }
   }
 
-internal inline val NpmRegistry.prefix get() = "registry.$name."
+internal inline val NpmRegistry.prefix
+  get() = "registry.$name."
 
 internal fun publishTaskName(packageName: String, registryName: String) =
   "publish${packageName.toCamelCase()}PackageTo${registryName.toCamelCase()}Registry"

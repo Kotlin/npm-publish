@@ -26,17 +26,17 @@ class NpmRegistryITest : ITest() {
   }
 
   @TestFactory
-  fun tests(): List<DynamicTest> = listOf<Triple<String, String, NpmRegistry.() -> String?>>(
-    Triple("access", "restricted") { access.orNull?.name?.lowercase() },
-    Triple("uri", "https://test.com") { uri.orNull?.toString() },
-    Triple("otp", "test") { otp.orNull },
-    Triple("authToken", "test") { authToken.orNull },
-    Triple("auth", "test") { auth.orNull },
-    Triple("username", "test") { username.orNull },
-    Triple("password", "test") { password.orNull },
-  ).map { (k, v, s) ->
-    DynamicTest.dynamicTest("default for NpmRegistry::$k") {
-      propertyDefaultTest(k, v, s)
-    }
-  }
+  fun tests(): List<DynamicTest> =
+    listOf<Triple<String, String, NpmRegistry.() -> String?>>(
+        Triple("access", "restricted") { access.orNull?.name?.lowercase() },
+        Triple("uri", "https://test.com") { uri.orNull?.toString() },
+        Triple("otp", "test") { otp.orNull },
+        Triple("authToken", "test") { authToken.orNull },
+        Triple("auth", "test") { auth.orNull },
+        Triple("username", "test") { username.orNull },
+        Triple("password", "test") { password.orNull },
+      )
+      .map { (k, v, s) ->
+        DynamicTest.dynamicTest("default for NpmRegistry::$k") { propertyDefaultTest(k, v, s) }
+      }
 }

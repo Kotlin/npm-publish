@@ -1,5 +1,5 @@
 plugins {
-  kotlin("multiplatform")
+  alias(libs.plugins.kotlin.multiplatform)
   id("dev.petuska.npm.publish")
 }
 
@@ -17,9 +17,7 @@ kotlin {
         implementation(kotlin("test-js"))
       }
     }
-    all {
-      languageSettings.optIn("kotlin.js.ExperimentalJsExport")
-    }
+    all { languageSettings.optIn("kotlin.js.ExperimentalJsExport") }
   }
 }
 
@@ -28,9 +26,7 @@ npmPublish {
   packages {
     named("js") {
       packageJson {
-        author {
-          name.set("Martynas Petuška")
-        }
+        author { name.set("Martynas Petuška") }
         repository {
           type.set("git")
           url.set("https://github.com/mpetuska/npm-publish.git")
@@ -38,7 +34,5 @@ npmPublish {
       }
     }
   }
-  registries {
-    github {  }
-  }
+  registries { github {} }
 }

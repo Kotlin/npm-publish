@@ -2,6 +2,7 @@ package dev.petuska.npm.publish.test.util
 
 import dev.petuska.npm.publish.NpmPublishPlugin
 import dev.petuska.npm.publish.extension.NpmPublishExtension
+import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.testfixtures.ProjectBuilder
@@ -11,13 +12,13 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinJsCompilerType
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Tags
 import org.junit.jupiter.api.io.TempDir
-import java.io.File
 
 @Tags(Tag("integration"))
 @Suppress("UnnecessaryAbstractClass")
 abstract class ITest {
   class TestProject(project: Project) : Project by project {
     val projectInternal = project as ProjectInternal
+
     operator fun <T> T.invoke(action: T.() -> Unit) {
       apply(action)
     }
@@ -31,21 +32,23 @@ abstract class ITest {
     val customPackageName = "testCustom"
   }
 
-  @TempDir
-  protected lateinit var tempDir: File
+  @TempDir protected lateinit var tempDir: File
 
   protected fun projectOf(
     init: (projectDir: File) -> Unit = {},
     properties: Map<String, Any> = mapOf(),
-    action: TestProject.(gradleUserHome: File) -> Unit = {}
+    action: TestProject.(gradleUserHome: File) -> Unit = {},
   ): TestProject {
     val gradleUserHome = tempDir.resolve("gradleHome").also(File::mkdirs)
     val projectDir = tempDir.resolve("gradleHome").also(File::mkdirs)
-    return ProjectBuilder.builder().withProjectDir(projectDir.also(init)).withName("test-project")
-      .withGradleUserHomeDir(gradleUserHome).build().let(::TestProject).also {
-        properties.forEach { (k, v) ->
-          it.extensions.extraProperties.set(k, v)
-        }
+    return ProjectBuilder.builder()
+      .withProjectDir(projectDir.also(init))
+      .withName("test-project")
+      .withGradleUserHomeDir(gradleUserHome)
+      .build()
+      .let(::TestProject)
+      .also {
+        properties.forEach { (k, v) -> it.extensions.extraProperties.set(k, v) }
         it.plugins.apply(NpmPublishPlugin::class.java)
         it.npmPublish.registries.register("npmjs") { registry ->
           registry.uri.set(it.uri("https://npmjs.org"))
@@ -59,17 +62,16 @@ abstract class ITest {
     init: (projectDir: File) -> Unit = {},
     properties: Map<String, Any> = mapOf(),
   ): TestProject {
-    return projectOf(init, properties + (KotlinJsCompilerType.jsCompilerProperty to compiler.name.lowercase())) {
+    return projectOf(
+      init,
+      properties + (KotlinJsCompilerType.jsCompilerProperty to compiler.name.lowercase()),
+    ) {
       plugins.apply("org.jetbrains.kotlin.js")
       kotlinJs {
         js(compiler) {
           browser()
           if (compiler == KotlinJsCompilerType.IR) binaries.library()
-          compilations.named("main") {
-            it.dependencies {
-              api(npm("axios", "*"))
-            }
-          }
+          compilations.named("main") { it.dependencies { api(npm("axios", "*")) } }
         }
       }
     }
@@ -86,11 +88,7 @@ abstract class ITest {
         js(targetName, compiler) {
           browser()
           if (compiler == KotlinJsCompilerType.IR) binaries.library()
-          compilations.named("main") {
-            it.dependencies {
-              api(npm("axios", "*"))
-            }
-          }
+          compilations.named("main") { it.dependencies { api(npm("axios", "*")) } }
         }
       }
     }

@@ -3,34 +3,38 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
-
 plugins {
-  id("kjvm")
-  id("detekt")
-  id("dokkatoo")
-  id("full-publishing")
+  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.kotlin.plugin.serialization)
+  alias(libs.plugins.ktfmt)
+  alias(libs.plugins.dokkatoo)
+  alias(libs.plugins.deployer)
+  //  id("full-publishing")
   alias(libs.plugins.plugin.publish)
 }
 
-description = """
+description =
+  """
   A maven-publish alternative for NPM package publishing.
   Integrates with kotlin JS/MPP plugins (if applied) to automatically
   setup publishing to NPM repositories for all JS targets.
-""".trimIndent()
+  """
+    .trimIndent()
 
-repositories {
-  mavenCentral()
-  gradlePluginPortal()
-}
+java { targetCompatibility = JavaVersion.VERSION_11 }
 
 kotlin {
-  dependencies {
-    compileOnly(libs.plugin.kotlin)
-    compileOnly(libs.plugin.node.gradle)
+  jvmToolchain(21)
+  explicitApi()
+}
 
-    testImplementation(libs.plugin.kotlin)
-    testImplementation(libs.bundles.kotest.assertions)
-  }
+dependencies {
+  compileOnly(libs.plugin.kotlin)
+  compileOnly(libs.plugin.node.gradle)
+
+  testImplementation(kotlin("test"))
+  testImplementation(libs.plugin.kotlin)
+  testImplementation(libs.bundles.kotest.assertions)
 }
 
 gradlePlugin {
@@ -48,25 +52,55 @@ gradlePlugin {
 }
 
 deployer {
-  content {
-    gradlePluginComponents()
+  content { gradlePluginComponents() }
+  projectInfo {
+    url = "https://github.com/Kotlin/${rootProject.name.lowercase()}"
+    description = provider { project.description }
+    license {
+      name = "Unlicense"
+      url = "https://unlicense.org"
+    }
+    developer {
+      name = "Martynas Petuška"
+      email = "martynas@petuska.dev"
+    }
+    scm { fromGithub("Kotlin", rootProject.name.lowercase()) }
+  }
+  signing {
+    key = secret("SIGNING_PGP_KEY")
+    password = secret("SIGNING_PGP_PASSWORD")
+  }
+  centralPortalSpec {
+    allowMavenCentralSync = false
+    auth {
+      user = secret("REPOSITORY_CENTRAL_USERNAME")
+      password = secret("REPOSITORY_CENTRAL_PASSWORD")
+    }
+  }
+  githubSpec {
+    owner = "Kotlin"
+    repository = rootProject.name.lowercase()
+    auth {
+      user = secret("REPOSITORY_GITHUB_USERNAME")
+      token = secret("REPOSITORY_GITHUB_PASSWORD")
+    }
   }
 }
 
-java {
-  targetCompatibility = JavaVersion.VERSION_11
-}
+ktfmt { googleStyle() }
 
 tasks {
-  withType<KotlinJvmCompile> {
-    compilerOptions.jvmTarget = JvmTarget.JVM_11
-  }
+  withType<Test> { useJUnitPlatform() }
+  withType<KotlinJvmCompile> { compilerOptions.jvmTarget = JvmTarget.JVM_11 }
   register<Jar>("javadocJar") {
     from(dokkatooGeneratePublicationHtml)
     archiveClassifier = "javadoc"
   }
   whenTaskAdded {
-    if (name.contains("CentralPortal", ignoreCase = true) || name.contains("Github", ignoreCase = true)) {
+    if (
+      name.contains("CentralPortal", ignoreCase = true) ||
+        name.contains("Github", ignoreCase = true)
+    ) {
       dependsOn("javadocJar", "sourcesJar", "jar", "makeEmptyDocsJar", "makeEmptySourcesJar")
     }
   }

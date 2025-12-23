@@ -5,6 +5,8 @@ import dev.petuska.npm.publish.extension.domain.NpmPackage
 import dev.petuska.npm.publish.util.*
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import java.io.File
+import javax.inject.Inject
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
@@ -16,26 +18,18 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.options.Option
-import java.io.File
-import javax.inject.Inject
 
-/**
- * A task to assemble all required files for a given [NpmPackage].
- */
+/** A task to assemble all required files for a given [NpmPackage]. */
 @CacheableTask
 @Suppress("LeakingThis")
 public abstract class NpmAssembleTask : DefaultTask(), PluginLogger {
-  @get:Inject
-  internal abstract val fs: FileSystemOperations
+  @get:Inject internal abstract val fs: FileSystemOperations
 
-  @get:Inject
-  internal abstract val objects: ObjectFactory
+  @get:Inject internal abstract val objects: ObjectFactory
 
-  @get:Inject
-  internal abstract val providers: ProviderFactory
+  @get:Inject internal abstract val providers: ProviderFactory
 
-  @get:Inject
-  internal abstract val layout: ProjectLayout
+  @get:Inject internal abstract val layout: ProjectLayout
 
   @get:InputFile
   @get:Optional
@@ -44,18 +38,17 @@ public abstract class NpmAssembleTask : DefaultTask(), PluginLogger {
 
   /**
    * The configuration of the package to assemble.
+   *
    * @see [NpmPackage]
    */
-  @get:Nested
-  @Suppress("VariableNaming")
-  internal abstract val `package`: Property<NpmPackage>
+  @get:Nested @Suppress("VariableNaming") internal abstract val `package`: Property<NpmPackage>
 
   /** Output directory to assemble the package to. */
-  @get:OutputDirectory
-  public abstract val destinationDir: DirectoryProperty
+  @get:OutputDirectory public abstract val destinationDir: DirectoryProperty
 
   /**
    * Sets [destinationDir]
+   *
    * @param path to the output directory
    */
   @Option(option = "nodeNome", description = "Output directory to assemble the package to")
@@ -63,9 +56,7 @@ public abstract class NpmAssembleTask : DefaultTask(), PluginLogger {
     destinationDir.set(File(path))
   }
 
-  /**
-   * Configuration DSL allowing to modify a given package config.
-   */
+  /** Configuration DSL allowing to modify a given package config. */
   @Suppress("FunctionNaming")
   public fun `package`(action: Action<NpmPackage>) {
     `package`.configure(action)
@@ -75,18 +66,9 @@ public abstract class NpmAssembleTask : DefaultTask(), PluginLogger {
     group = "build"
     description = "Assembles NPM package"
     destinationDir.convention(
-      `package`.flatMap {
-        layout.buildDirectory.dir("packages/${it.name}")
-      }
+      `package`.flatMap { layout.buildDirectory.dir("packages/${it.name}") }
     )
-    `package`.convention(
-      providers.provider {
-        objects.newInstance(
-          NpmPackage::class.java,
-          name
-        )
-      }
-    )
+    `package`.convention(providers.provider { objects.newInstance(NpmPackage::class.java, name) })
   }
 
   @TaskAction
@@ -99,11 +81,7 @@ public abstract class NpmAssembleTask : DefaultTask(), PluginLogger {
 
     fs.sync { cp ->
       cp.from(files)
-      pkg.readme.orNull?.let { md ->
-        cp.from(md) {
-          it.rename(md.asFile.name, "README.md")
-        }
-      }
+      pkg.readme.orNull?.let { md -> cp.from(md) { it.rename(md.asFile.name, "README.md") } }
       cp.from(pkg.npmIgnore.orNull)
       cp.into(dest)
     }
@@ -120,10 +98,13 @@ public abstract class NpmAssembleTask : DefaultTask(), PluginLogger {
       info { "package.json file set and found for $name package. Not resolving further..." }
       return JsonSlurper().parse(it.asFile).unsafeCast()
     }
-    val pJson = packageJsonTemplateFile.orNull?.let {
-      info { "package.json template file set and found for $name package. Using it as a baseline..." }
-      JsonSlurper().parse(it.asFile).unsafeCast<MutableMap<String, Any>>()
-    } ?: mutableMapOf()
+    val pJson =
+      packageJsonTemplateFile.orNull?.let {
+        info {
+          "package.json template file set and found for $name package. Using it as a baseline..."
+        }
+        JsonSlurper().parse(it.asFile).unsafeCast<MutableMap<String, Any>>()
+      } ?: mutableMapOf()
 
     packageJson.orNull?.finalise()?.let(pJson::overrideFrom)
     main.orNull?.let { fixKgpPackageJsonBugForEsModules(it) }?.let { pJson.putIfAbsent("main", it) }
@@ -147,25 +128,26 @@ public abstract class NpmAssembleTask : DefaultTask(), PluginLogger {
     val fOrig = destinationDir.file(main).get().asFile
 
     return if (!fOrig.exists()) {
-      arrayOf("js", "mjs").map { ext ->
-        File(fOrig.parentFile, "${fOrig.nameWithoutExtension}.$ext")
-      }.first { f ->
-        f.exists()
-      }.relativeTo(destinationDir.get().asFile).path
+      arrayOf("js", "mjs")
+        .map { ext -> File(fOrig.parentFile, "${fOrig.nameWithoutExtension}.$ext") }
+        .first { f -> f.exists() }
+        .relativeTo(destinationDir.get().asFile)
+        .path
     } else {
       return main
     }
   }
 
-  private fun resolveDependencySourcePackageJson(): List<NpmDependency> = dependencySourcePackageJson.asFile.orNull
-    ?.let { pJson ->
+  private fun resolveDependencySourcePackageJson(): List<NpmDependency> =
+    dependencySourcePackageJson.asFile.orNull?.let { pJson ->
       val json = JsonSlurper().parse(pJson).unsafeCast<Map<String, Any?>>()
-      fun Any?.parse(scope: NpmDependency.Type) = this?.unsafeCast<Map<String, String>>()?.map { (n, v) ->
-        objects.newInstance(NpmDependency::class.java, n).apply {
-          type.set(scope)
-          version.set(v)
-        }
-      } ?: listOf()
+      fun Any?.parse(scope: NpmDependency.Type) =
+        this?.unsafeCast<Map<String, String>>()?.map { (n, v) ->
+          objects.newInstance(NpmDependency::class.java, n).apply {
+            type.set(scope)
+            version.set(v)
+          }
+        } ?: listOf()
       json["dependencies"].parse(NpmDependency.Type.NORMAL) +
         json["peerDependencies"].parse(NpmDependency.Type.PEER) +
         json["optionalDependencies"].parse(NpmDependency.Type.OPTIONAL)
@@ -173,46 +155,54 @@ public abstract class NpmAssembleTask : DefaultTask(), PluginLogger {
 
   private fun NpmPackage.resolveDependencies(pJson: MutableMap<String, Any>) {
     val direct =
-      (dependencies.toList() + resolveDependencySourcePackageJson()).distinct().groupBy { it.type.get() }
-    val dOptional = pJson.mergeDependencies(
-      "optionalDependencies",
-      direct.getOrDefault(NpmDependency.Type.OPTIONAL, listOf())
-    )
-    val dPeer = pJson.mergeDependencies(
-      "peerDependencies",
-      direct.getOrDefault(NpmDependency.Type.PEER, listOf())
-    ) { d ->
-      dOptional.keys.none { d == it }.also {
-        if (!it) {
-          warn {
-            "Registered peer dependency $d for $name package already present in higher priority scope. Skipping..."
+      (dependencies.toList() + resolveDependencySourcePackageJson()).distinct().groupBy {
+        it.type.get()
+      }
+    val dOptional =
+      pJson.mergeDependencies(
+        "optionalDependencies",
+        direct.getOrDefault(NpmDependency.Type.OPTIONAL, listOf()),
+      )
+    val dPeer =
+      pJson.mergeDependencies(
+        "peerDependencies",
+        direct.getOrDefault(NpmDependency.Type.PEER, listOf()),
+      ) { d ->
+        dOptional.keys
+          .none { d == it }
+          .also {
+            if (!it) {
+              warn {
+                "Registered peer dependency $d for $name package already present in higher priority scope. Skipping..."
+              }
+            }
+          }
+      }
+    val dDev =
+      pJson.mergeDependencies(
+        "devDependencies",
+        direct.getOrDefault(NpmDependency.Type.DEV, listOf()),
+      ) { d ->
+        (dOptional.keys.none { d == it } && dPeer.keys.none { d == it }).also {
+          if (!it) {
+            warn {
+              "Registered dev dependency $d for $name package already present in higher priority scope. Skipping..."
+            }
           }
         }
       }
-    }
-    val dDev = pJson.mergeDependencies(
-      "devDependencies",
-      direct.getOrDefault(NpmDependency.Type.DEV, listOf())
-    ) { d ->
-      (dOptional.keys.none { d == it } && dPeer.keys.none { d == it }).also {
-        if (!it) {
-          warn {
-            "Registered dev dependency $d for $name package already present in higher priority scope. Skipping..."
-          }
-        }
-      }
-    }
     pJson.mergeDependencies(
       "dependencies",
-      direct.getOrDefault(NpmDependency.Type.NORMAL, listOf())
+      direct.getOrDefault(NpmDependency.Type.NORMAL, listOf()),
     ) { d ->
-      (dOptional.keys.none { d == it } && dPeer.keys.none { d == it } && dDev.keys.none { d == it }).also {
-        if (!it) {
-          warn {
-            "Registered normal dependency $d for $name package already present in higher priority scope. Skipping..."
+      (dOptional.keys.none { d == it } && dPeer.keys.none { d == it } && dDev.keys.none { d == it })
+        .also {
+          if (!it) {
+            warn {
+              "Registered normal dependency $d for $name package already present in higher priority scope. Skipping..."
+            }
           }
         }
-      }
     }
   }
 
@@ -221,14 +211,14 @@ public abstract class NpmAssembleTask : DefaultTask(), PluginLogger {
     direct: List<NpmDependency>,
     filter: (String) -> Boolean = { true },
   ): Map<String, String> {
-    val dDeps = direct.groupBy(NpmDependency::getName).filterKeys(filter)
-      .mapValues { (_, v) -> v.first().version.get() }
+    val dDeps =
+      direct.groupBy(NpmDependency::getName).filterKeys(filter).mapValues { (_, v) ->
+        v.first().version.get()
+      }
     if (dDeps.isNotEmpty()) {
       putIfAbsent(key, dDeps)
       get(key).unsafeCast<MutableMap<String, Any>>().apply {
-        dDeps.forEach { (name, version) ->
-          putIfAbsent(name, version)
-        }
+        dDeps.forEach { (name, version) -> putIfAbsent(name, version) }
       }
     }
     return dDeps

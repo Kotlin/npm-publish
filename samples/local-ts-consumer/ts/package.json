@@ -9,7 +9,8 @@
     "build": "tsc",
     "build:start": "yarn build && node build/index.js",
     "reinstall": "yarn remove @mpetuska/kt; yarn add ../kt/build/packages/js",
-    "relink": "(cd ../.. && ./gradlew :local-ts-consumer:kt:assembleJsPackage) && yarn reinstall"
+    "relink": "(cd ../.. && ./gradlew :local-ts-consumer:kt:assembleJsPackage) && yarn reinstall",
+    "verify": "yarn relink && yarn build:start"
   },
   "dependencies": {
     "@mpetuska/kt": "../kt/build/packages/js"

@@ -13,15 +13,20 @@ private const val NODE_GRADLE_PLUGIN = "com.github.node-gradle.node"
 
 internal fun Project.configureNodeGradlePlugin(extension: NpmPublishExtension) {
   pluginManager.withPlugin(NODE_GRADLE_PLUGIN) {
-    val nodeGradleHome = project.tasks.named<NodeSetupTask>(NodeSetupTask.NAME)
-      .map { it.takeIf { it.enabled }.unsafeCast<NodeSetupTask>() }
-      .flatMap(NodeSetupTask::nodeDir)
+    val nodeGradleHome =
+      project.tasks
+        .named<NodeSetupTask>(NodeSetupTask.NAME)
+        .map { it.takeIf { it.enabled }.unsafeCast<NodeSetupTask>() }
+        .flatMap(NodeSetupTask::nodeDir)
     extension.nodeHome.convention(
       sysProjectEnvPropertyConvention(
-        name = "nodeHome",
-        default = nodeGradleHome.map { it.asFile.absolutePath }
-          .orElse(providers.environmentVariable("NODE_HOME")),
-      ).map(layout.projectDirectory::dir)
+          name = "nodeHome",
+          default =
+            nodeGradleHome
+              .map { it.asFile.absolutePath }
+              .orElse(providers.environmentVariable("NODE_HOME")),
+        )
+        .map(layout.projectDirectory::dir)
     )
     tasks.withType(NodeExecTask::class.java) {
       it.dependsOn(nodeGradleHome)

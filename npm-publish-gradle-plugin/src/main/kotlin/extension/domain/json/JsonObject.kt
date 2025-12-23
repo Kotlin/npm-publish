@@ -5,14 +5,13 @@ import org.gradle.api.Action
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
 
-/**
- * Generic json object container supporting extra properties and Gradle serialisation
- */
+/** Generic json object container supporting extra properties and Gradle serialisation */
 @NpmPublishDsl
 public abstract class JsonObject<T : Any> : WithGradleFactories() {
 
   /**
    * Set a custom value
+   *
    * @param key of the value
    * @param value to set under the given key
    */
@@ -22,6 +21,7 @@ public abstract class JsonObject<T : Any> : WithGradleFactories() {
 
   /**
    * Set a custom value provider to be resolved when [finalise] is invoked
+   *
    * @param key of the value
    * @param value to set under the given key
    */
@@ -31,8 +31,9 @@ public abstract class JsonObject<T : Any> : WithGradleFactories() {
 
   /**
    * Set a custom value for this [JsonObject]
-   * @receiver property key
+   *
    * @param value to set under the key
+   * @receiver property key
    */
   public infix fun String.by(value: T) {
     set(this, value)
@@ -40,13 +41,13 @@ public abstract class JsonObject<T : Any> : WithGradleFactories() {
 
   /**
    * Build a custom object value
+   *
    * @param value configuration to apply to a new [GenericJsonObject] instance
    */
   public fun json(value: Action<GenericJsonObject>): GenericJsonObject =
     instance(GenericJsonObject::class).also(value::execute)
 
-  @get:Input
-  protected abstract val extras: MapProperty<String, T>
+  @get:Input protected abstract val extras: MapProperty<String, T>
 
   protected val <V : T> Property<V>.finalOrNull: V?
     get() {
@@ -67,22 +68,24 @@ public abstract class JsonObject<T : Any> : WithGradleFactories() {
     }
 
   /**
-   * Resolves the underlying json value to a [MutableMap] instance,
-   * recursively merging known and custom properties and resolving all [Provider] values
+   * Resolves the underlying json value to a [MutableMap] instance, recursively merging known and
+   * custom properties and resolving all [Provider] values
    */
-  public open fun finalise(): MutableMap<String, T> = mutableMapOf<String, T>().apply {
-    extras.finalizeValue()
-    extras.orNull?.map { (k, v) ->
-      val value = finaliseValue(v)
-      put(k, value.unsafeCast())
+  public open fun finalise(): MutableMap<String, T> =
+    mutableMapOf<String, T>().apply {
+      extras.finalizeValue()
+      extras.orNull?.map { (k, v) ->
+        val value = finaliseValue(v)
+        put(k, value.unsafeCast())
+      }
     }
-  }
 
-  private fun finaliseValue(value: Any?): Any? = when (value) {
-    is Provider<*> -> value.orNull
-    is JsonObject<*> -> value.finalise()
-    is Array<*> -> value.map(::finaliseValue)
-    is Collection<*> -> value.map(::finaliseValue)
-    else -> value
-  }
+  private fun finaliseValue(value: Any?): Any? =
+    when (value) {
+      is Provider<*> -> value.orNull
+      is JsonObject<*> -> value.finalise()
+      is Array<*> -> value.map(::finaliseValue)
+      is Collection<*> -> value.map(::finaliseValue)
+      else -> value
+    }
 }

@@ -12,47 +12,51 @@ internal fun Project.configure(extension: NpmPublishExtension) {
   configure(extension.registries)
   extension.nodeHome.convention(
     sysProjectEnvPropertyConvention(
-      name = "nodeHome",
-      default = providers.environmentVariable("NODE_HOME")
-    ).map(layout.projectDirectory::dir)
+        name = "nodeHome",
+        default = providers.environmentVariable("NODE_HOME"),
+      )
+      .map(layout.projectDirectory::dir)
   )
   extension.nodeBin.convention(
     sysProjectEnvPropertyConvention(
-      "nodeBin",
-      extension.nodeHome.map { it.file("bin/node").asFile.absolutePath }
-    ).map(layout.projectDirectory::file)
+        "nodeBin",
+        extension.nodeHome.map { it.file("bin/node").asFile.absolutePath },
+      )
+      .map(layout.projectDirectory::file)
   )
   extension.npmBin.convention(
     sysProjectEnvPropertyConvention(
-      "npmBin",
-      extension.nodeHome.map { it.file("bin/npm").asFile.absolutePath }
-    ).map(layout.projectDirectory::file)
+        "npmBin",
+        extension.nodeHome.map { it.file("bin/npm").asFile.absolutePath },
+      )
+      .map(layout.projectDirectory::file)
   )
   extension.readme.convention(
     sysProjectEnvPropertyConvention("readme").map(layout.projectDirectory::file)
   )
   extension.npmIgnore.convention(
     sysProjectEnvPropertyConvention(
-      "npmIgnore",
-      provider { layout.projectDirectory.file(".npmignore").asFile }
-        .map { (if (it.exists()) it.absolutePath else null) }
-    ).map(layout.projectDirectory::file)
+        "npmIgnore",
+        provider { layout.projectDirectory.file(".npmignore").asFile }
+          .map { (if (it.exists()) it.absolutePath else null) },
+      )
+      .map(layout.projectDirectory::file)
   )
   extension.npmrc.convention(
     sysProjectEnvPropertyConvention(
-      "npmrc",
-      provider { layout.projectDirectory.file(".npmrc").asFile }
-        .map { (if (it.exists()) it.absolutePath else null) }
-    ).map(layout.projectDirectory::file)
+        "npmrc",
+        provider { layout.projectDirectory.file(".npmrc").asFile }
+          .map { (if (it.exists()) it.absolutePath else null) },
+      )
+      .map(layout.projectDirectory::file)
   )
-  extension.organization.convention(
-    sysProjectEnvPropertyConvention("organization")
-  )
+  extension.organization.convention(sysProjectEnvPropertyConvention("organization"))
   extension.version.convention(
     sysProjectEnvPropertyConvention("version", provider { project.version.toString() })
   )
   extension.access.convention(
-    sysProjectEnvPropertyConvention("access", provider { NpmAccess.PUBLIC.toString() }).map(NpmAccess::fromString)
+    sysProjectEnvPropertyConvention("access", provider { NpmAccess.PUBLIC.toString() })
+      .map(NpmAccess::fromString)
   )
   extension.dry.convention(
     sysProjectEnvPropertyConvention("dry", provider { "false" }).map { it.notFalse() }

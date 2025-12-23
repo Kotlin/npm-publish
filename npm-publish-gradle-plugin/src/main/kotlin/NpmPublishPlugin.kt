@@ -18,61 +18,58 @@ import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsSetupTask
 import org.jetbrains.kotlin.gradle.utils.named
 
-/**
- * Main entry point for npm-publish plugin
- */
+/** Main entry point for npm-publish plugin */
 @Suppress("unused")
 public class NpmPublishPlugin : Plugin<Project> {
-  override fun apply(project: Project): Unit = with(project) {
-    val extension = extensions.create(NpmPublishExtension.NAME, NpmPublishExtension::class.java)
-    configure(extension)
-    configureNodeGradlePlugin(extension)
-    pluginManager.withPlugin(KOTLIN_MPP_PLUGIN) {
-      extensions.configure<KotlinMultiplatformExtension> {
-        targets.filterIsInstance<KotlinJsTargetDsl>().forEach { configure(it) }
-        targets.whenObjectAdded {
-          if (it is KotlinJsTargetDsl) configure(it)
-        }
-        targets.whenObjectRemoved {
-          if (it is KotlinJsTargetDsl) extension.packages.findByName(it.name)?.let(extension.packages::remove)
-        }
-      }
-    }
-    pluginManager.withPlugin(KOTLIN_JS_PLUGIN) {
-      logger.warn("Kotlin/JS plugin integration is deprecated. Please migrate to Kotlin/Multiplatform plugin")
-      extensions.configure<KotlinJsProjectExtension> {
-        @Suppress("DEPRECATION")
-        configure(target)
-      }
-    }
-
-    afterEvaluate {
-      if (tasks.names.contains("kotlinNodeJsSetup")) {
-        tasks.named<NodeJsSetupTask>("kotlinNodeJsSetup")
-          .map(NodeJsSetupTask::destination)
-          .let(layout::dir)
-          .let(extension.nodeHome::convention)
-        // Hack to work around all KGP kotlinNodeJsSetup tasks sharing the same output dir.
-        rootProject.allprojects { subProject ->
-          tasks.withType(NodeExecTask::class.java) {
-            it.mustRunAfter(subProject.tasks.withType(NodeJsSetupTask::class.java))
+  override fun apply(project: Project): Unit =
+    with(project) {
+      val extension = extensions.create(NpmPublishExtension.NAME, NpmPublishExtension::class.java)
+      configure(extension)
+      configureNodeGradlePlugin(extension)
+      pluginManager.withPlugin(KOTLIN_MPP_PLUGIN) {
+        extensions.configure<KotlinMultiplatformExtension> {
+          targets.filterIsInstance<KotlinJsTargetDsl>().forEach { configure(it) }
+          targets.whenObjectAdded { if (it is KotlinJsTargetDsl) configure(it) }
+          targets.whenObjectRemoved {
+            if (it is KotlinJsTargetDsl)
+              extension.packages.findByName(it.name)?.let(extension.packages::remove)
           }
         }
       }
-      tasks.maybeCreate("assemble").apply {
-        group = "build"
-        dependsOn(tasks.withType(NpmAssembleTask::class.java))
+      pluginManager.withPlugin(KOTLIN_JS_PLUGIN) {
+        logger.warn(
+          "Kotlin/JS plugin integration is deprecated. Please migrate to Kotlin/Multiplatform plugin"
+        )
+        extensions.configure<KotlinJsProjectExtension> { js { configure(this) } }
       }
-      tasks.maybeCreate("pack").apply {
-        group = "build"
-        dependsOn(tasks.withType(NpmPackTask::class.java))
-      }
-      tasks.maybeCreate(PUBLISH_LIFECYCLE_TASK_NAME).apply {
-        group = PUBLISH_TASK_GROUP
-        dependsOn(tasks.withType(NpmPublishTask::class.java))
+
+      afterEvaluate {
+        if (tasks.names.contains("kotlinNodeJsSetup")) {
+          tasks
+            .named<NodeJsSetupTask>("kotlinNodeJsSetup")
+            .flatMap { layout.dir(it.destinationProvider.asFile) }
+            .let(extension.nodeHome::convention)
+          // Hack to work around all KGP kotlinNodeJsSetup tasks sharing the same output dir.
+          rootProject.allprojects { subProject ->
+            tasks.withType(NodeExecTask::class.java) {
+              it.mustRunAfter(subProject.tasks.withType(NodeJsSetupTask::class.java))
+            }
+          }
+        }
+        tasks.maybeCreate("assemble").apply {
+          group = "build"
+          dependsOn(tasks.withType(NpmAssembleTask::class.java))
+        }
+        tasks.maybeCreate("pack").apply {
+          group = "build"
+          dependsOn(tasks.withType(NpmPackTask::class.java))
+        }
+        tasks.maybeCreate(PUBLISH_LIFECYCLE_TASK_NAME).apply {
+          group = PUBLISH_TASK_GROUP
+          dependsOn(tasks.withType(NpmPublishTask::class.java))
+        }
       }
     }
-  }
 
   private companion object {
     private const val KOTLIN_JS_PLUGIN = "org.jetbrains.kotlin.js"

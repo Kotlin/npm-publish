@@ -6,6 +6,7 @@ open class ScriptBuilder(val baseIndent: Int = 0) {
 
   /**
    * Appends a lambda block
+   *
    * ```kotlin
    * [name] {
    *   <content>
@@ -20,9 +21,7 @@ open class ScriptBuilder(val baseIndent: Int = 0) {
   }
 
   operator fun String.unaryPlus() {
-    split("\n").forEach {
-      builder.appendLine("$indentChunk$it")
-    }
+    split("\n").forEach { builder.appendLine("$indentChunk$it") }
   }
 
   override fun toString(): String {

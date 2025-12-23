@@ -26,16 +26,16 @@ class NpmPackageITest : ITest() {
   }
 
   @TestFactory
-  fun tests(): List<DynamicTest> = listOf<Triple<String, String, NpmPackage.() -> String?>>(
-    Triple("scope", "test") { scope.orNull },
-    Triple("packageName", "test") { packageName.orNull },
-    Triple("version", "test") { version.orNull },
-    Triple("main", "test") { main.orNull },
-    Triple("types", "test") { types.orNull },
-    Triple("readme", "test") { readme.orNull?.asFile?.name },
-  ).map { (k, v, s) ->
-    DynamicTest.dynamicTest("default for NpmPackage::$k") {
-      propertyDefaultTest(k, v, s)
-    }
-  }
+  fun tests(): List<DynamicTest> =
+    listOf<Triple<String, String, NpmPackage.() -> String?>>(
+        Triple("scope", "test") { scope.orNull },
+        Triple("packageName", "test") { packageName.orNull },
+        Triple("version", "test") { version.orNull },
+        Triple("main", "test") { main.orNull },
+        Triple("types", "test") { types.orNull },
+        Triple("readme", "test") { readme.orNull?.asFile?.name },
+      )
+      .map { (k, v, s) ->
+        DynamicTest.dynamicTest("default for NpmPackage::$k") { propertyDefaultTest(k, v, s) }
+      }
 }

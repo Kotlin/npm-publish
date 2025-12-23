@@ -15,7 +15,8 @@
     "reinstall:browser": "yarn remove @mpetuska/browser; yarn add ../browser/build/packages/js",
     "reinstall:node": "yarn remove @mpetuska/node; yarn add ../node/build/packages/js",
     "reinstall": "yarn reinstall:both && yarn reinstall:browser && yarn reinstall:node",
-    "rebuild": "(cd .. && ../gradlew pack) && yarn reinstall"
+    "rebuild": "(cd .. && ../gradlew pack) && yarn reinstall",
+    "verify": "yarn rebuild && yarn start"
   },
   "dependencies": {
     "@mpetuska/both": "../both/build/packages/js",

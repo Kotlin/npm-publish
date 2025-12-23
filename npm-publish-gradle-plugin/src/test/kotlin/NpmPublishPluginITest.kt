@@ -23,7 +23,8 @@ import org.junit.jupiter.api.TestFactory
 class NpmPublishPluginITest : ITest() {
 
   private fun autoconfigureTest(kPlugin: String, compiler: KotlinJsCompilerType, present: Boolean) {
-    val project = if (kPlugin == "multiplatform") kMppProjectOf(compiler) else kJsProjectOf(compiler)
+    val project =
+      if (kPlugin == "multiplatform") kMppProjectOf(compiler) else kJsProjectOf(compiler)
     project.projectInternal.evaluate()
     project.npmPublish.run {
       val pkg = packages.findByName("js")
@@ -43,20 +44,20 @@ class NpmPublishPluginITest : ITest() {
   }
 
   @TestFactory
-  fun tests(): List<DynamicTest> = listOf(
-    DynamicTest.dynamicTest("can autoconfigure with K/MPP IR") {
-      autoconfigureTest("multiplatform", KotlinJsCompilerType.IR, true)
-    },
-    DynamicTest.dynamicTest("can autoconfigure with K/JS IR") {
-      autoconfigureTest("js", KotlinJsCompilerType.IR, true)
-    },
-    DynamicTest.dynamicTest("rejects K/MPP Legacy") {
-      @Suppress("DEPRECATION")
-      autoconfigureTest("multiplatform", KotlinJsCompilerType.LEGACY, false)
-    },
-    DynamicTest.dynamicTest("rejects K/JS Legacy") {
-      @Suppress("DEPRECATION")
-      autoconfigureTest("js", KotlinJsCompilerType.LEGACY, false)
-    },
-  )
+  fun tests(): List<DynamicTest> =
+    listOf(
+      DynamicTest.dynamicTest("can autoconfigure with K/MPP IR") {
+        autoconfigureTest("multiplatform", KotlinJsCompilerType.IR, true)
+      },
+      DynamicTest.dynamicTest("can autoconfigure with K/JS IR") {
+        autoconfigureTest("js", KotlinJsCompilerType.IR, true)
+      },
+      DynamicTest.dynamicTest("rejects K/MPP Legacy") {
+        @Suppress("DEPRECATION")
+        autoconfigureTest("multiplatform", KotlinJsCompilerType.LEGACY, false)
+      },
+      DynamicTest.dynamicTest("rejects K/JS Legacy") {
+        @Suppress("DEPRECATION") autoconfigureTest("js", KotlinJsCompilerType.LEGACY, false)
+      },
+    )
 }

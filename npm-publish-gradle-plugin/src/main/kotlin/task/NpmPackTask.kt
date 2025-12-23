@@ -3,6 +3,8 @@ package dev.petuska.npm.publish.task
 import dev.petuska.npm.publish.extension.NpmPublishExtension
 import dev.petuska.npm.publish.util.unsafeCast
 import groovy.json.JsonSlurper
+import java.io.File
+import javax.inject.Inject
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
@@ -12,23 +14,18 @@ import org.gradle.api.provider.ValueSource
 import org.gradle.api.provider.ValueSourceParameters
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.options.Option
-import java.io.File
-import javax.inject.Inject
 
-/**
- * A task to pack a `.tgz` archive for the given package
- */
+/** A task to pack a `.tgz` archive for the given package */
 @CacheableTask
 @Suppress("LeakingThis")
 public abstract class NpmPackTask : NpmExecTask() {
-  @get:Inject
-  internal abstract val layout: ProjectLayout
+  @get:Inject internal abstract val layout: ProjectLayout
 
-  @get:Inject
-  internal abstract val providers: ProviderFactory
+  @get:Inject internal abstract val providers: ProviderFactory
 
   /**
    * The directory where the assembled and ready-to-pack package is.
+   *
    * @see [NpmAssembleTask]
    */
   @get:InputDirectory
@@ -37,6 +34,7 @@ public abstract class NpmPackTask : NpmExecTask() {
 
   /**
    * Controls dry-tun mode for the execution.
+   *
    * @see [NpmPublishExtension.dry]
    */
   @get:Input
@@ -48,11 +46,11 @@ public abstract class NpmPackTask : NpmExecTask() {
    *
    * Defaults to `build/packages/<scope>-<name>-<version>.tgz`
    */
-  @get:OutputFile
-  public abstract val outputFile: RegularFileProperty
+  @get:OutputFile public abstract val outputFile: RegularFileProperty
 
   /**
    * Sets [outputFile]
+   *
    * @param path to the output file
    */
   @Option(option = "outputFile", description = "Path to the output file")
@@ -60,13 +58,18 @@ public abstract class NpmPackTask : NpmExecTask() {
     outputFile.set(File(path))
   }
 
-  internal abstract class PackageJsonParserValueSource : ValueSource<String, PackageJsonParserValueSource.Params> {
+  internal abstract class PackageJsonParserValueSource :
+    ValueSource<String, PackageJsonParserValueSource.Params> {
     internal interface Params : ValueSourceParameters {
       var packageDir: DirectoryProperty
     }
 
     override fun obtain(): String? {
-      return parameters.packageDir.get().file("package.json").asFile.takeIf(File::exists)
+      return parameters.packageDir
+        .get()
+        .file("package.json")
+        .asFile
+        .takeIf(File::exists)
         ?.let { JsonSlurper().parse(it).unsafeCast<MutableMap<String, Any>>() }
         ?.let {
           val name = it["name"]?.toString()?.replace("@", "")?.replace("/", "-")
@@ -113,7 +116,8 @@ public abstract class NpmPackTask : NpmExecTask() {
     npmExec(args) { it.workingDir(tmpDir) }.rethrowFailure()
     if (!d) {
       val outFile =
-        tmpDir.listFiles()?.firstOrNull() ?: error("[npm-publish] Internal error. Temporary packed file not found.")
+        tmpDir.listFiles()?.firstOrNull()
+          ?: error("[npm-publish] Internal error. Temporary packed file not found.")
       outFile.copyTo(oDir, true)
       info { "Packed package at ${pDir.path} to ${oDir.path}" }
     }

@@ -1,12 +1,10 @@
 plugins {
-  id("kmp")
+  alias(libs.plugins.kotlin.multiplatform)
   id("dev.petuska.npm.publish")
   id("com.github.node-gradle.node") version "7.1.0"
 }
 
-repositories {
-  mavenCentral()
-}
+repositories { mavenCentral() }
 
 kotlin {
   js {
@@ -25,9 +23,7 @@ kotlin {
   }
 }
 
-node {
-  download = true
-}
+node { download = true }
 
 npmPublish {
   organization = group.toString()
@@ -36,9 +32,7 @@ npmPublish {
     named("js") {
       packageJsonTemplateFile = rootDir.resolve("template.package.json")
       packageJson {
-        author {
-          name = "Martynas Petuška"
-        }
+        author { name = "Martynas Petuška" }
         repository {
           type = "git"
           url = "https://github.com/mpetuska/npm-publish.git"
@@ -47,12 +41,8 @@ npmPublish {
     }
   }
   registries {
-    npmjs {
-      dry = true
-    }
-    github {
-      dry = true
-    }
+    npmjs { dry = true }
+    github { dry = true }
     register("custom") {
       uri = uri("https://registry.custom.com/")
       dry = true
