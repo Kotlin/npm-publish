@@ -15,8 +15,6 @@ jobs:
       GRADLE_OPTS: "-Dorg.gradle.daemon=true"
     steps: 
       - uses: actions/checkout@v3
-        with:
-          submodules: recursive
 
       - uses: actions/setup-java@v3
         with: 
@@ -37,25 +35,7 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle-
 
       - name: Gradle Check
-        run: ./gradlew detekt check --scan
-
-      - name: Make artifact location URIs relative
-        if: ${{ always() }}
-        continue-on-error: true
-        run: |
-          cp ${{ github.workspace }}/npm-publish-gradle-plugin/build/reports/detekt/detekt.sarif ${{ github.workspace }}/detekt.sarif.json
-          echo "$(
-            jq \
-              --arg github_workspace ${{ github.workspace }} \
-              '. | ( .runs[].results[].locations[].physicalLocation.artifactLocation.uri |= if test($github_workspace) then .[($github_workspace | length | . + 1):] else . end )' \
-              ${{ github.workspace }}/detekt.sarif.json
-          )" > ${{ github.workspace }}/detekt.sarif.json
-
-      - uses: github/codeql-action/upload-sarif@v3
-        if: ${{ always() }}
-        with: 
-          sarif_file: ${{ github.workspace }}/detekt.sarif.json
-          checkout_path: ${{ github.workspace }}
+        run: ./gradlew check --scan
 
       - name: Gradle Assemble
         run: ./gradlew assemble --scan

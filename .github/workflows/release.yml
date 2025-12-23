@@ -67,8 +67,7 @@ jobs:
       VERSION: ${{ needs.version.outputs.version }}
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: recursive
+
       - name: Restore Gradle cache
         id: cache
         uses: actions/cache@v3
@@ -106,8 +105,7 @@ jobs:
       VERSION: ${{ needs.version.outputs.version }}
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: recursive
+
       - name: Restore Gradle cache
         id: cache
         uses: actions/cache@v3
@@ -144,8 +142,7 @@ jobs:
       VERSION: ${{ needs.version.outputs.version }}
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: recursive
+
       - name: Restore Gradle cache
         id: cache
         uses: actions/cache@v3
