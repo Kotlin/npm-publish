@@ -23,6 +23,9 @@ fun Project.signWith(
   signingPassphrase: String?,
 ) {
   val signing = extensions.getByType(SigningExtension::class.java)
+    // For KUP only
+    .apply { isRequired = keyId != null }
+
   signing.useInMemoryPgpKeys(
     keyId,
      signingKey,
