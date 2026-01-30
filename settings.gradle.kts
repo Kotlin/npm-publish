@@ -1,3 +1,16 @@
+pluginManagement {
+  repositories {
+    mavenCentral()
+    gradlePluginPortal()
+
+    // [KUP] set kotlin_repo_url for plugins
+    providers.gradleProperty("kotlin_repo_url").orNull?.let { kotlinRepoUrl ->
+      logger.info("<KUP> Repo plugins URL: $kotlinRepoUrl")
+      maven(kotlinRepoUrl) { name = "KotlinDev" }
+    }
+  }
+}
+
 plugins {
   id("com.gradle.develocity") version "4.3"
   id("org.danilopianini.gradle-pre-commit-git-hooks") version "2.1.6"
@@ -23,6 +36,22 @@ dependencyResolutionManagement {
   repositories {
     mavenCentral()
     gradlePluginPortal()
+
+    // [KUP] set kotlin_repo_url for dependencies
+    providers.gradleProperty("kotlin_repo_url").orNull?.let { kotlinRepoUrl ->
+      logger.info("<KUP> Repo dependencies URL: $kotlinRepoUrl")
+      maven(kotlinRepoUrl) { name = "KotlinDev" }
+    }
+  }
+
+  versionCatalogs {
+    create("libs") {
+      // [KUP] set kotlin_version
+      providers.gradleProperty("kotlin_version").orNull?.let { customKotlinVersion ->
+        logger.info("<KUP> Kotlin version: $customKotlinVersion")
+        version("kotlin", customKotlinVersion)
+      }
+    }
   }
 }
 

@@ -1,6 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
@@ -23,9 +24,42 @@ description =
 
 java { targetCompatibility = JavaVersion.VERSION_11 }
 
+val defaultLanguageVersion = KotlinVersion.KOTLIN_2_1
+
+// [KUP] set kotlin_language_version
+val providedLanguageVersion = providers.gradleProperty("kotlin_language_version")
+  .map(KotlinVersion::fromVersion)
+  .orNull?.also { logger.info("<KUP> Kotlin language version: $it") }
+  ?: defaultLanguageVersion
+
+// [KUP] set kotlin_api_version
+val providedApiVersion = providers.gradleProperty("kotlin_api_version")
+  .map(KotlinVersion::fromVersion)
+  .orNull?.also { logger.info("<KUP> Kotlin API version: $it") }
+  ?: providedLanguageVersion
+
+
+// [KUP] set kotlin_additional_cli_options
+val kotlinAdditionalCliOptions = run {
+  val spacesRegex = "\\s+".toRegex()
+  providers.gradleProperty("kotlin_additional_cli_options")
+    .map { option ->
+      option.trim { it == '"' || it.isWhitespace() }.split(spacesRegex).filterNot(String::isEmpty)
+    }
+    .orNull?.also { logger.info("<KUP> Kotlin additional CLI options: $it") }
+    .orEmpty()
+}
+
 kotlin {
   jvmToolchain(21)
   explicitApi()
+
+  compilerOptions {
+    languageVersion.set(providedLanguageVersion)
+    apiVersion.set(providedApiVersion)
+    freeCompilerArgs.addAll("-Xreport-all-warnings", "-Xrender-internal-diagnostic-names")
+    freeCompilerArgs.addAll(kotlinAdditionalCliOptions)
+  }
 }
 
 dependencies {
