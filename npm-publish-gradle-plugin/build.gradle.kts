@@ -27,26 +27,27 @@ java { targetCompatibility = JavaVersion.VERSION_11 }
 val defaultLanguageVersion = KotlinVersion.KOTLIN_2_1
 
 // [KUP] set kotlin_language_version
-val providedLanguageVersion = providers.gradleProperty("kotlin_language_version")
-  .map(KotlinVersion::fromVersion)
-  .orNull?.also { logger.info("<KUP> Kotlin language version: $it") }
-  ?: defaultLanguageVersion
+val providedLanguageVersion =
+  providers.gradleProperty("kotlin_language_version").map(KotlinVersion::fromVersion).orNull?.also {
+    logger.info("<KUP> Kotlin language version: $it")
+  } ?: defaultLanguageVersion
 
 // [KUP] set kotlin_api_version
-val providedApiVersion = providers.gradleProperty("kotlin_api_version")
-  .map(KotlinVersion::fromVersion)
-  .orNull?.also { logger.info("<KUP> Kotlin API version: $it") }
-  ?: providedLanguageVersion
-
+val providedApiVersion =
+  providers.gradleProperty("kotlin_api_version").map(KotlinVersion::fromVersion).orNull?.also {
+    logger.info("<KUP> Kotlin API version: $it")
+  } ?: providedLanguageVersion
 
 // [KUP] set kotlin_additional_cli_options
 val kotlinAdditionalCliOptions = run {
   val spacesRegex = "\\s+".toRegex()
-  providers.gradleProperty("kotlin_additional_cli_options")
+  providers
+    .gradleProperty("kotlin_additional_cli_options")
     .map { option ->
       option.trim { it == '"' || it.isWhitespace() }.split(spacesRegex).filterNot(String::isEmpty)
     }
-    .orNull?.also { logger.info("<KUP> Kotlin additional CLI options: $it") }
+    .orNull
+    ?.also { logger.info("<KUP> Kotlin additional CLI options: $it") }
     .orEmpty()
 }
 
