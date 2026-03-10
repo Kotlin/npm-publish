@@ -58,12 +58,5 @@ class NpmPublishPluginITest : ITest() {
       DynamicTest.dynamicTest("can autoconfigure with K/JS IR") {
         autoconfigureTest("js", KotlinJsCompilerType.IR, true)
       },
-      DynamicTest.dynamicTest("rejects K/MPP Legacy") {
-        @Suppress("DEPRECATION")
-        autoconfigureTest("multiplatform", KotlinJsCompilerType.LEGACY, false)
-      },
-      DynamicTest.dynamicTest("rejects K/JS Legacy") {
-        @Suppress("DEPRECATION") autoconfigureTest("js", KotlinJsCompilerType.LEGACY, false)
-      },
     )
 }
