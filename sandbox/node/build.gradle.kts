@@ -1,6 +1,6 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  id("dev.petuska.npm.publish")
+  kotlin("npm-publish")
 }
 
 kotlin {
