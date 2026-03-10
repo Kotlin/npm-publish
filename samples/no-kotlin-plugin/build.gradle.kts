@@ -1,5 +1,5 @@
 plugins {
-  id("dev.petuska.npm.publish")
+  kotlin("npm-publish")
   id("com.netflix.nebula.node") version "+"
 }
 
