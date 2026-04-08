@@ -56,6 +56,9 @@ npmPublish {
 Full documentation can be found
 on [npm-publish.petuska.dev](https://npm-publish.petuska.dev/latest/user-guide/quick-start/)
 
+> Support for the org.jetbrains.kotlin.js plugin has been removed in version 3.7.0. Use prior versions if you are using
+> the legacy Kotlin/JS plugin or migrate to the Kotlin/Multiplatform plugin.
+
 ## Important note
 
 The project was developed by Martynas Petuška ([mpetuska](https://github.com/mpetuska)) for a long time, and after Martynas no longer had the capacity to maintain this plugin

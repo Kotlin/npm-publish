@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Support for the `org.jetbrains.kotlin.js` plugin has been removed
+
 ---
 
 ## [3.5.3]
