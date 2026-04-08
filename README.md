@@ -6,7 +6,7 @@
 # NPM-PUBLISH GRADLE PLUGIN
 
 Gradle plugin enabling NPM publishing (essentially `maven-publish` for NPM packages). Integrates seamlessly with
-Kotlin/JS/KMP plugin if applied, providing auto configurations.
+Kotlin/KMP plugin if applied, providing auto configurations.
 
 > Check the latest [release](https://github.com/Kotlin/npm-publish/releases/latest) for verified JVM, Kotlin and
 > Gradle tooling versions

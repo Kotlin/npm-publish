@@ -47,10 +47,6 @@ class BuildFileBuilder(config: BuildFileBuilder.() -> Unit) : ScriptBuilder() {
     fun kotlinMultiplatform(version: String? = null) {
       id("org.jetbrains.kotlin.multiplatform", version)
     }
-
-    fun kotlinJs(version: String? = null) {
-      id("org.jetbrains.kotlin.js", version)
-    }
   }
 
   class Repositories(baseIndent: Int = 0) : ScriptBuilder(baseIndent) {

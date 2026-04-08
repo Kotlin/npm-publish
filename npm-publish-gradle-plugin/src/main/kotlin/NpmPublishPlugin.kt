@@ -18,7 +18,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.plugins.PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME
 import org.gradle.api.publish.plugins.PublishingPlugin.PUBLISH_TASK_GROUP
-import org.jetbrains.kotlin.gradle.dsl.KotlinJsProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsSetupTask
@@ -41,12 +40,6 @@ public class NpmPublishPlugin : Plugin<Project> {
               extension.packages.findByName(it.name)?.let(extension.packages::remove)
           }
         }
-      }
-      pluginManager.withPlugin(KOTLIN_JS_PLUGIN) {
-        logger.warn(
-          "Kotlin/JS plugin integration is deprecated. Please migrate to Kotlin/Multiplatform plugin"
-        )
-        extensions.configure<KotlinJsProjectExtension> { js { configure(this) } }
       }
 
       afterEvaluate {
@@ -78,7 +71,6 @@ public class NpmPublishPlugin : Plugin<Project> {
     }
 
   private companion object {
-    private const val KOTLIN_JS_PLUGIN = "org.jetbrains.kotlin.js"
     private const val KOTLIN_MPP_PLUGIN = "org.jetbrains.kotlin.multiplatform"
   }
 }
