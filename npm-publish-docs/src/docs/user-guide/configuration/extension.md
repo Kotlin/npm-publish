@@ -76,7 +76,7 @@ Default NodeJS directory to be used when executing npm commands.
 
 !!! info
     This is set automatically when certain other plugins are applied
-    - `org.jetbrains.kotlin.multiplatform` & `org.jetbrains.kotlin.js`: `kotlinNodeJsSetup` task output
+    - `org.jetbrains.kotlin.multiplatform`: `kotlinNodeJsSetup` task output
     - `com.github.node-gradle.node`: `nodeSetup` task's `NodeSetupTask::nodeDir` property
 
 ### `nodeBin`
