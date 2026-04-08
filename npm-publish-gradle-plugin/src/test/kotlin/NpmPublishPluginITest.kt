@@ -28,9 +28,8 @@ import org.junit.jupiter.api.TestFactory
 )
 class NpmPublishPluginITest : ITest() {
 
-  private fun autoconfigureTest(kPlugin: String, compiler: KotlinJsCompilerType, present: Boolean) {
-    val project =
-      if (kPlugin == "multiplatform") kMppProjectOf(compiler) else kJsProjectOf(compiler)
+  private fun autoconfigureTest(compiler: KotlinJsCompilerType, present: Boolean) {
+    val project = kMppProjectOf(compiler)
     project.projectInternal.evaluate()
     project.npmPublish.run {
       val pkg = packages.findByName("js")
@@ -53,10 +52,7 @@ class NpmPublishPluginITest : ITest() {
   fun tests(): List<DynamicTest> =
     listOf(
       DynamicTest.dynamicTest("can autoconfigure with K/MPP IR") {
-        autoconfigureTest("multiplatform", KotlinJsCompilerType.IR, true)
-      },
-      DynamicTest.dynamicTest("can autoconfigure with K/JS IR") {
-        autoconfigureTest("js", KotlinJsCompilerType.IR, true)
-      },
+        autoconfigureTest(KotlinJsCompilerType.IR, true)
+      }
     )
 }
