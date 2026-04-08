@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 internal class PackageJsonTest : ITest() {
   @Test
   fun instantiation() {
-    val project = kJsProjectOf(KotlinJsCompilerType.IR)
+    val project = kMppProjectOf(KotlinJsCompilerType.IR)
     val pkg = project { npmPublish.packages.getByName(targetName) }
     pkg.packageJson { it.main.set("main") }
     pkg.packageJson.get().main.get() shouldBe "main"
@@ -23,7 +23,7 @@ internal class PackageJsonTest : ITest() {
 
   @Test
   fun customNestedObject() {
-    val project = kJsProjectOf(KotlinJsCompilerType.IR)
+    val project = kMppProjectOf(KotlinJsCompilerType.IR)
     val pkg = project { npmPublish.packages.getByName(targetName) }
     pkg.packageJson { with(it) { "custom" by { "value" by true } } }
     val final = pkg.packageJson.get().finalise()

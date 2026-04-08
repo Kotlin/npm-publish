@@ -12,7 +12,6 @@ import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.kotlin.gradle.dsl.KotlinJsProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinJsCompilerType
 import org.junit.jupiter.api.Tag
@@ -33,7 +32,6 @@ abstract class ITest {
 
     val npmPublish by lazy { extensions.getByType(NpmPublishExtension::class.java) }
     val kotlinMpp by lazy { extensions.getByType(KotlinMultiplatformExtension::class.java) }
-    val kotlinJs by lazy { extensions.getByType(KotlinJsProjectExtension::class.java) }
     val targetName = "js"
     val customPackageName = "testCustom"
   }
@@ -61,26 +59,6 @@ abstract class ITest {
         }
         it.action(gradleUserHome)
       }
-  }
-
-  protected fun kJsProjectOf(
-    compiler: KotlinJsCompilerType,
-    init: (projectDir: File) -> Unit = {},
-    properties: Map<String, Any> = mapOf(),
-  ): TestProject {
-    return projectOf(
-      init,
-      properties + (KotlinJsCompilerType.jsCompilerProperty to compiler.name.lowercase()),
-    ) {
-      plugins.apply("org.jetbrains.kotlin.js")
-      kotlinJs {
-        js(compiler) {
-          browser()
-          if (compiler == KotlinJsCompilerType.IR) binaries.library()
-        }
-        sourceSets { getByName("main").dependencies { api(npm("axios", "*")) } }
-      }
-    }
   }
 
   protected fun kMppProjectOf(
