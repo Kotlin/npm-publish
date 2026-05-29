@@ -84,11 +84,7 @@ gradlePlugin {
       description = project.description
       tags = listOf("npm", "publishing", "kotlin", "node", "js")
 
-      compatibility {
-        features {
-          configurationCache = true
-        }
-      }
+      compatibility { features { configurationCache = true } }
     }
   }
 }
